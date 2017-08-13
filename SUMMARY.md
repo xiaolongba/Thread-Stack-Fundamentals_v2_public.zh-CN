@@ -1,7 +1,5 @@
 # Summary
 
-* 声明
-* [引言](https://www.gitbook.com/book/jerryfree/thread/edit#)
-
-
+* [引言](README.md)
+* [声明](sheng-ming.md)
 
