@@ -83,39 +83,51 @@ REED有能力成为路由器，但是由于网络拓扑或条件，这些设备�
 
 ---
 
-## 解决
+## 寻址
 
-在指定的Thread协议栈支持IPv6寻址体系结构设备[\[RFC 4291\]](https://www.ietf.org/rfc/rfc4291)。设备配置1个或多个ULA（唯一本地地址）或GUA（全球单播地址）的地址。
+Thread协议栈中的设备支持[\[RFC 4291\]](https://www.ietf.org/rfc/rfc4291)中指定的IPv6寻址架构。
+设备配备1个或多个ULA（唯一本地地址）或GUA（全局单播地址）。
+启动网络的设备挑选一个/64前缀，在整个Thread网络使用。前缀是本地分配的全局ID，通常称为ULA前缀
+[\[RFC 4193\]](https://www.ietf.org/rfc/rfc4193)，或被称为Mesh本地ULA前缀。
+Thread网络还可以具有一个或多个边界路由器，每个边界路由器可选择是否拥有（用于生成额外GUA的）前缀。
+在Thread网络的设备使用其扩展MAC地址来导出[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944)第6节中定义的接口标识符。
+且基于此，通过已知的本地前缀FE80 :: 0/64配置本地链路IPV6地址，如[\[RFC 4862\]](https://www.ietf.org/rfc/rfc4862)
+和[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944)所述。
 
-启动网络的装置挑选一个/ 64前缀，然后在整个Thread网络使用。前缀是局部分配的全球ID，常常被称为ULA前缀[\[RFC 4193\]](https://www.ietf.org/rfc/rfc4193)，并且可以被称为网格本地ULA前缀。Thread网络还可具有每个可能或可能不会有那么可以用来产生额外的瓜斯前缀的一个或多个边界路由器。在Thread网络的设备使用其扩展MAC地址来导出其接口标识符作为在第6节中定义[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944)从这个配置与知名的本地前缀FE80 :: 0/64链路本地IPv6地址中的说明[\[RFC 4862\]](https://www.ietf.org/rfc/rfc4862)和[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944)。
+该器件还支持相应的组播地址。这包括链路本地所有节点组播，链路本地所有路由器组播和区域本地组播。
 
-该器件还支持相应的组播地址。这包括本地链路所有节点组播，链路本地所有路由器组播和领域，本地多播。
+每个加入Thread网络的设备将会被分配一个16位地址[\[IEEE802154\]](https://standards.ieee.org/findstds/standard/802.15.4-2006.html)。
+对路由器设备而言，该地址使用地址字段中的高位，而低位设置为0，表示路由器地址。
+而后，子设备将使用其父设备的高位地址编码和适当的低位地址编码来为其地址配置一个16位的短地址。
+这允许Thread网络中的任何其他设备通过使用其地址字段的高位来判断子设备的路由（父设备）位置。
+[图2](#_bookmark13) 说明Thread短地址构造。
+![](/assets/短地址.png)
+**图2.Thread短地址**
 
-如在指定加入Thread网络中的每个设备被分配一个16位地址短[\[IEEE802154\]](https://standards.ieee.org/findstds/standard/802.15.4-2006.html)。路由器，该地址被使用分配在与设置为0的低位比特的地址字段中的高比特，指示路由器地址。然后孩子们被分配使用他们的父母的高位，并为他们的地址相应的较低位的16位短地址。这使得Thread网络的任何其他设备只需通过使用其地址字段的高位，以了解孩子的路由位置。
+## 6LoWPAN
 
-[图2](#_bookmark13) 说明螺纹短地址。
+所有设备使用[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944) 和 [\[RFC 6282\]](https://www.ietf.org/rfc/rfc6282)中定义的6LoWPAN。
 
-**图2.螺纹短地址**
+Thread网络中使用报头压缩（Header compression）技术，设备在传输消息尽可能多地压缩IPv6报头，使发送的数据包的大小最小化。
 
-## 6LoWPAN的
+如[**路由和网络连接**](#_bookmark20)所讨论的，mesh报头支持在Mesh网络实现对链路层转发消息的更有效的压缩。
+mesh报头也允许端至端的消息分片，而不是如[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944)中所述的逐跳分片。
+Thread协议栈使用路由切换配置[route-over configuration]。
 
-所有设备使用的6LoWPAN中定义 [\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944) 和 [\[RFC 6282\]](https://www.ietf.org/rfc/rfc6282)。
+设备不​​支持[\[RFC 6775\]](https://www.ietf.org/rfc/rfc6775)所述的邻居发现，而使用DHCPv6用于实现路由器的地址分配。
+终端设备和REED由其路由父节点分配短地址。然后将该短地址被用于配置实现网内通信的mesh本地网络ULA。
 
-报头压缩是Thread网络内使用和设备传送消息压缩IPv6报头尽可能以最小化所发送的分组的大小。
+有关6LoWPAN使用和配置的更多详细信息，请参见“6LoWPAN的Thread用法（Thread Usage of 6LoWPAN）”白皮书。
+Thread规范的第3章详细介绍了所使用的6LoWPAN具体配置。
 
-如所讨论的网格报头被支承用于在网格内和用于链路层转发的消息的更有效的压缩[**路由和网络连接**](#_bookmark20)部分。mesh报头也允许端至端碎片的消息，而不是逐在指定跳碎片[\[RFC 4944\]](https://www.ietf.org/rfc/rfc4944)。Thread协议栈使用路由切换配置。
-
-在指定的设备不​​支持邻居发现[\[RFC 6775\]](https://www.ietf.org/rfc/rfc6775)如DHCPv6用于地址分配给路由器。终端设备和芦苇由其母公司路由器分配的短地址。然后将该短地址被用于配置用于网络内的通信网的本地ULA。
-
-在6LoWPAN的使用和配置的进一步详情载于白皮书“的6LoWPAN的Thread使用”。Thread规范的第3章详细介绍所使用的特定6LoWPAN的配置。
 
 ## ICMP
 
-设备支持的ICMPv6（因特网控制消息协议版本6）协议[\[RFC 4443\]](https://www.ietf.org/rfc/rfc4443)及ICMPv6的错误消息，以及回波请求和Echo Reply消息。
+设备支持的ICMPv6（因特网控制消息协议版本6）协议[\[RFC 4443\]](https://www.ietf.org/rfc/rfc4443)及ICMPv6的错误消息，以及回显请求和回显回复消息。
 
 ## UDP
 
-Thread协议栈支持UDP（用户数据报协议）中定义[\[RFC 768\]](https://www.ietf.org/rfc/rfc768)用于设备之间的消息传递。
+Thread协议栈支持[\[RFC 768\]](https://www.ietf.org/rfc/rfc768)中定义的UDP（用户数据报协议），用于设备之间的消息传递。
 
 # 网络拓扑
 
